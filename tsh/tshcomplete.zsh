@@ -2,23 +2,23 @@ _tsh() {
     local line state
 
     _arguments -s \
-               "--proxy[SSH proxy address]" \
-                    "-l[Remote host login]" \
-                    "--login[Remote host login]" \
-                    "--user[SSH proxy user]" \
-                    "--ttl[Minutes to live for a SSH session]" \
-                    "--identity[Identity file]" \
-                    "-i[Identity file]" \
-                    "--cert-format[SSH certificate format]" \
+               "--proxy[SSH proxy address]:string:" \
+                    "-l[Remote host login]:string:" \
+                    "--login[Remote host login]:string:" \
+                    "--user[SSH proxy user]:string:" \
+                    "--ttl[Minutes to live for a SSH session]:string:" \
+                    "--identity[Identity file]:filename:_files" \
+                    "-i[Identity file]:filename:_files" \
+                    "--cert-format[SSH certificate format]:string:" \
                     "--insecure[Do not verify server's certificate and host name. Use only in test environments]" \
-                    "--auth[Specify the type of authentication connector to use.]" \
+                    "--auth[Specify the type of authentication connector to use.]:baseuri:_urls" \
                     "--skip-version-check[Skip version checking between server and client.]" \
                     "--debug[Verbose logging to stdout]" \
                     "-d[Verbose logging to stdout]" \
-                    "--add-keys-to-agent[Controls how keys are handled. Valid values are \[auto no yes only\].]" \
-                    "-k[Controls how keys are handled. Valid values are .\[auto no yes only\].]" \
+                    "--add-keys-to-agent[Controls how keys are handled. Valid values are \[auto no yes only\].]:string:" \
+                    "-k[Controls how keys are handled. Valid values are .\[auto no yes only\].]:string:" \
                     "--enable-escape-sequences[Enable support for SSH escape sequences. Type '~?' during an SSH session to list supported sequences. Default is enabled.]" \
-                    "--bind-addr[Override host:port used when opening a browser for cluster logins]" \
+                    "--bind-addr[Override host:port used when opening a browser for cluster logins]:string:" \
                     "--jumphost[SSH jumphost]" \
                     "-J[SSH jumphost]" \
                "1: :->cmds" \
@@ -111,35 +111,35 @@ _scp_tsh_cmd() {
 }
 
 _login_tsh_cmd() {
-  _arguments -s "(--login)--login[Remote host login]" \
-             "(--proxy)--proxy[SSH proxy address]" \
-             "--user[SSH proxy user]" \
-             "--ttl[Minutes to live for a SSH session]" \
-             "-i[Identity file]" \
-             "--identity[Identity file]" \
-             "--cert-format[SSH certificate format]" \
+  _arguments -s "(--login)--login[Remote host login]:string:" \
+             "(--proxy)--proxy[SSH proxy address]:string:" \
+             "--user[SSH proxy user]:string:" \
+             "--ttl[Minutes to live for a SSH session]:string:" \
+             "-i[Identity file]:filename:_files" \
+             "--identity[Identity file]:filename:_files" \
+             "--cert-format[SSH certificate format]:string:" \
              "--insecure[Do not verify server's certificate and host name. Use only in test environments]" \
-             "--auth[Specify the type of authentication connector to use.]" \
+             "--auth[Specify the type of authentication connector to use.]:string:" \
              "--skip-version-check[Skip version checking between server and client.]" \
              "--debug[Verbose logging to stdout]" \
              "-d[Verbose logging to stdout]" \
-             "-k[Controls how keys are handled. Valid values are \[auto no yes only\].]" \
-             "--add-keys-to-agent[Controls how keys are handled. Valid values are \[auto no yes only\].]" \
+             "-k[Controls how keys are handled. Valid values are \[auto no yes only\].]:string:" \
+             "--add-keys-to-agent[Controls how keys are handled. Valid values are \[auto no yes only\].]:string:" \
              "--enable-escape-sequences[Enable support for SSH escape sequences. Type '~?' during an SSH session to list supported sequences. Default is enabled.]" \
-             "--bind-addr[Override host:port used when opening a browser for cluster logins]" \
-             "--jumphost[SSH jumphost]" \
-             "-J[SSH jumphost]" \
-             "-o[Identity output]" \
-             "--out[Identity output]" \
-             "--format[Identity format: file, openssh (for OpenSSH compatibility) or kubernetes (for kubeconfig)]" \
+             "--bind-addr[Override host:port used when opening a browser for cluster logins]:string:" \
+             "--jumphost[SSH jumphost]:string:" \
+             "-J[SSH jumphost]:string:" \
+             "-o[Identity output]:filename:_files" \
+             "--out[Identity output]:filename:_files" \
+             "--format[Identity format: file, openssh (for OpenSSH compatibility) or kubernetes (for kubeconfig)]:string:" \
              "--overwrite[Whether to overwrite the existing identity file.]" \
-             "--request-roles[Request one or more extra roles]" \
-             "--request-reason[Reason for requesting additional roles]" \
-             "--request-reviewers[Suggested reviewers for role request]" \
-             "--request-nowait[Finish without waiting for request resolution]" \
-             "--request-id[Login with the roles requested in the given request]" \
-             "--browser[Set to none to suppress browser opening on login]" \
-             "--kube-cluster[Name of the Kubernetes cluster to login to]"
+             "--request-roles[Request one or more extra roles]:string:" \
+             "--request-reason[Reason for requesting additional roles]:string:" \
+             "--request-reviewers[Suggested reviewers for role request]:string:" \
+             "--request-nowait[Finish without waiting for request resolution]:string:" \
+             "--request-id[Login with the roles requested in the given request]:string:" \
+             "--browser[Set to none to suppress browser opening on login]:string:" \
+             "--kube-cluster[Name of the Kubernetes cluster to login to]:string:"
 }
 
 _requests_tsh_cmd() {
@@ -180,9 +180,9 @@ _new_requests_tsh_cmd() {
     local line state
 
     _arguments -s \
-               "--roles[Roles to be requested]" \
-      "--reason[Reason for requesting]" \
-      "--reviewers[Suggested reviewers]" \
+               "--roles[Roles to be requested]:string:" \
+      "--reason[Reason for requesting]:string:" \
+      "--reviewers[Suggested reviewers]:string:" \
       "--nowait[Finish without waiting for request resolution]"
 }
 
@@ -192,7 +192,7 @@ _review_requests_tsh_cmd() {
     _arguments -s \
              "--approve[Review proposes approval]" \
              "--deny[Review proposes denial]" \
-             "--reason[Review reason message]"
+             "--reason[Review reason message]:string:"
 }
 
 _mfa_tsh_cmd() {
@@ -270,7 +270,7 @@ _apps_tsh_cmd() {
 
 _apps_login_tsh_cmd() {
     _arguments -s \
-               '--aws-role[(For AWS CLI access only) Amazon IAM role ARN or role name.]'
+               '--aws-role[(For AWS CLI access only) Amazon IAM role ARN or role name.]:string:'
 }
 
 _db_tsh_cmd() {
@@ -322,8 +322,9 @@ _db_ls_tsh_cmd() {
 
 _db_login_tsh_cmd() {
     _arguments -s \
-               "--db-user[Optional database user to configure as default]" \
-                    "--db-name[Optional database name to configure as default.]" \
+               "--db-user[Optional database user to configure as default]:string:" \
+                    "--db-name[Optional database name to configure as default.]:string:" \
+     "*: :( $(tsh db ls | sed -n '3,$p' | awk '{print $1}') )"
 }
 
 
