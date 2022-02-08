@@ -7,5 +7,5 @@ Add the below to your `.zshrc` or where you prefer to store your autocompletes. 
 
 ```zsh
 source <path>/tsh/tshcomplete.zsh
-source <path>/tsh/tctlcomplete.zsh
+source <path>/tctl/tctlcomplete.zsh
 ```
