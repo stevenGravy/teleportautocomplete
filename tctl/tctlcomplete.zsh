@@ -35,6 +35,9 @@ _tctl() {
             ;;
         args)
             case $line[1] in
+                access)
+                    _access_tctl_cmd
+                    ;;
                 users)
                     _users_tctl_cmd
                     ;;
@@ -47,6 +50,35 @@ _tctl() {
             esac
             ;;
     esac
+}
+
+_access_tctl_cmd() {
+    local line state
+
+    _arguments -s \
+               "1: :->cmds" \
+               "*::arg:->args"
+
+    case "$state" in
+        cmds)
+            _values "access" \
+                    "ls[users]"
+            ;;
+        args)
+            case $line[1] in
+                ls)
+                    _ls_access_tctl_cmd
+                    ;;
+            esac
+            ;;
+    esac
+}
+
+_ls_access_tctl_cmd() {
+    _arguments -s \
+      "--user[Teleport user]:string:" \
+      "--login[Teleport login]:string:" \
+      "--node[Teleport node]:string:" \
 }
 
 _nodes_tctl_cmd() {
