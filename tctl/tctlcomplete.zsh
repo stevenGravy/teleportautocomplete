@@ -50,6 +50,9 @@ _tctl() {
                 auth)
                    _auth_tctl_cmd
                     ;;
+                apps)
+                   _apps_tctl_cmd
+                    ;;
                 lock)
                    _lock_tctl_cmd
                     ;;
@@ -57,6 +60,21 @@ _tctl() {
                    _tctl
                     ;;
             esac
+            ;;
+    esac
+}
+
+_apps_tctl_cmd(){
+
+    helpauth=$(tctl help apps 2>&1 | grep "apps ls")
+
+    _arguments -s \
+               "1: :->cmds" 
+
+    case "$state" in
+        cmds)
+            _values "apps" \
+                    "ls[$(echo "$helpauth" | grep "apps ls" | sed -n -e 's/^.*apps ls//p'|sed -e 's/^[ \t]*//')]" \
             ;;
     esac
 }
