@@ -53,6 +53,9 @@ _tctl() {
                 apps)
                    _apps_tctl_cmd
                     ;;
+                db)
+                   _db_tctl_cmd
+                    ;;
                 lock)
                    _lock_tctl_cmd
                     ;;
@@ -64,9 +67,24 @@ _tctl() {
     esac
 }
 
+_db_tctl_cmd(){
+
+    helpauth=$(tctl help db 2>&1 | grep "db")
+
+    _arguments -s \
+               "1: :->cmds"
+
+    case "$state" in
+        cmds)
+            _values "db" \
+                    "ls[$(echo "$helpauth" | grep "db ls" | sed -n -e 's/^.*db ls//p'|sed -e 's/^[ \t]*//')]" \
+            ;;
+    esac
+}
+
 _apps_tctl_cmd(){
 
-    helpauth=$(tctl help apps 2>&1 | grep "apps ls")
+    helpauth=$(tctl help apps 2>&1 | grep "apps")
 
     _arguments -s \
                "1: :->cmds" 
