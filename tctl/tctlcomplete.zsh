@@ -44,12 +44,126 @@ _tctl() {
                 nodes)
                     _nodes_tctl_cmd
                     ;;
+                tokens)
+                    _tokens_tctl_cmd
+                    ;;
+                auth)
+                   _auth_tctl_cmd
+                    ;;
                 help)
                    _tctl
                     ;;
             esac
             ;;
     esac
+}
+
+
+_auth_tctl_cmd() {
+    local line state
+    
+    helpauth=$(tctl help auth 2>&1 | grep "  auth")
+
+    _arguments -s \
+               "1: :->cmds" \
+               "*::arg:->args"
+
+    case "$state" in
+        cmds)
+            _values "auth" \
+                    "export[$(echo "$helpauth" | grep "auth export" | sed -n -e 's/^.*export//p'|sed -e 's/^[ \t]*//')]" \
+                    "sign[$(echo "$helpauth" | grep "auth sign" | sed -n -e 's/^.*sign//p'|sed -e 's/^[ \t]*//')]" \
+                    "rotate[$(echo "$helpauth" | grep "auth rotate" | sed -n -e 's/^.*rotate//p'|sed -e 's/^[ \t]*//')]"
+            ;;
+        args)
+            case $line[1] in
+                export)
+                    _export_auth_tctl_cmd
+                    ;;
+                sign)
+                    _sign_auth_tctl_cmd
+                    ;;
+                rotate)
+                    _rotate_auth_tctl_cmd
+                    ;;
+            esac
+            ;;
+    esac
+}
+
+_rotate_auth_tctl_cmd(){
+    helpauth=$(tctl help auth rotate 2>&1 | grep "\-\-")
+  _arguments -s \
+  "--grace-period[$(echo "$helpauth" | grep "\-\-grace\-period" | sed -n -e 's/^.*\-\-grace\-period//p'|sed -e 's/^[ \t]*//')]:string:" \
+  "--manual[$(echo "$helpauth" | grep "\-\-manual" | sed -n -e 's/^.*\-\-manual//p'|sed -e 's/^[ \t]*//')]" \
+  "--type[$(echo "$helpauth" | grep "\-\-type" | sed -n -e 's/^.*\-\-type//p'|sed -e 's/^[ \t]*//')]" \
+  "--phase[$(echo "$helpauth" | grep "\-\-phase" | sed -n -e 's/^.*\-\-phase//p'|sed -e 's/^[ \t]*//')]"
+}
+
+_export_auth_tctl_cmd(){
+    helpauth=$(tctl help auth export 2>&1 | grep "\-\-")
+  _arguments -s \
+  "--keys[$(echo "$helpauth" | grep "\-\-keys" | sed -n -e 's/^.*\-\-keys//p'|sed -e 's/^[ \t]*//')]" \
+  "--fingerprint[$(echo "$helpauth" | grep "\-\-fingerprint" | sed -n -e 's/^.*\-\-fingerprint//p'|sed -e 's/^[ \t]*//')]" \
+  "--compat[$(echo "$helpauth" | grep "\-\-compat" | sed -n -e 's/^.*\-\-compat//p'|sed -e 's/^[ \t]*//')]" \
+  "--type[$(echo "$helpauth" | grep "\-\-type" | sed -n -e 's/^.*\-\-type//p'|sed -e 's/^[ \t]*//')]" 
+}
+
+_sign_auth_tctl_cmd(){
+  _arguments -s \
+  "--user[Teleport user name]:string:" \
+  "--host[Teleport host name]:string:" \
+  "--out[identity output]" \
+  "-o[identity output]" \
+  "--format[identity format: "file" (default), "openssh", "tls", "kubernetes", "db" or "mongodb"]:string:" \
+  "--ttl[TTL (time to live) for the generated certificate]:string:" \
+  "--compat[OpenSSH compatibility flag]" \
+  "--proxy[Address of the teleport proxy. When --format is set to "kubernetes", this address will be set as cluster address in the generated kubeconfig file]:string:" \
+  "--overwrite[Whether to overwrite existing destination files. When not set, user will be prompted before overwriting any existing file.]" \
+  "--leaf-cluster[Leaf cluster to generate identity file for when --format is set to "kubernetes"]:string:" \
+  "--kube-cluster-name[Kubernetes cluster to generate identity file for when --format is set to "kubernetes"]:string:" \
+  "--app-name[Application to generate identity file for]:string:"
+}
+
+
+_tokens_tctl_cmd() {
+    local line state
+
+    _arguments -s \
+               "1: :->cmds" \
+               "*::arg:->args"
+
+    case "$state" in
+        cmds)
+            _values "tokens" \
+                    "add[Create a invitation token]" \
+                    "rm[Delete/revoke an invitation token]" \
+                    "del[Delete/revoke an invitation token]" \
+                    "ls[List node and user invitation tokens]"
+            ;;
+        args)
+            case $line[1] in
+                add)
+                    _add_tokens_tctl_cmd
+                    ;;
+            esac
+            ;;
+    esac
+
+}
+
+_add_tokens_tctl_cmd(){
+   _arguments -s \
+      "--type[Type of token to add]:string:" \
+      "--value[Value of token to add]:string:" \
+      "--labels[Set token labels, e.g. env=prod,region=us-west]:string:" \
+      "--ttl[Set expiration time for token, default is 1 hour, maximum is 48 hours]:string:" \
+      "--app-name[Name of the application to add]:string:" \
+      "--app-uri[URI of the application to add]:string:" \
+      "--db-name[Name of the database to add]:string:" \
+      "--db-protocol[Database protocol to use. Supported are: \[postgres mysql mongodb cockroachdb\]]:string:" \
+      "--db-uri[Address the database is reachable at]:string:" 
+
 }
 
 _access_tctl_cmd() {
