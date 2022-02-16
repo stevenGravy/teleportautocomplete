@@ -50,12 +50,30 @@ _tctl() {
                 auth)
                    _auth_tctl_cmd
                     ;;
+                lock)
+                   _lock_tctl_cmd
+                    ;;
                 help)
                    _tctl
                     ;;
             esac
             ;;
     esac
+}
+
+_lock_tctl_cmd(){
+    helpauth=$(tctl help lock 2>&1 | grep "\-\-")
+  _arguments -s \
+  "--user[$(echo "$helpauth" | grep "\-\-user" | sed -n -e 's/^.*\-\-user//p'|sed -e 's/^[ \t]*//')]:string:" \
+  "--role[$(echo "$helpauth" | grep "\-\-role" | sed -n -e 's/^.*\-\-role//p'|sed -e 's/^[ \t]*//')]:string:" \
+  "--login[$(echo "$helpauth" | grep "\-\-login" | sed -n -e 's/^.*\-\-login//p'|sed -e 's/^[ \t]*//')]:string:" \
+  "--node[$(echo "$helpauth" | grep "\-\-node" | sed -n -e 's/^.*\-\-node//p'|sed -e 's/^[ \t]*//')]:string:" \
+  "--mfa-device[$(echo "$helpauth" | grep "\-\-mfa\-device" | sed -n -e 's/^.*\-\-mfa\-device//p'|sed -e 's/^[ \t]*//')]:string:" \
+  "--windows-desktop[$(echo "$helpauth" | grep "\-\-windows\-desktop" | sed -n -e 's/^.*\-\-windows\-desktop//p'|sed -e 's/^[ \t]*//')]:string:" \
+  "--access-request[$(echo "$helpauth" | grep "\-\-access\-request" | sed -n -e 's/^.*\-\-access\-request//p'|sed -e 's/^[ \t]*//')]:string:" \
+  "--message[$(echo "$helpauth" | grep "\-\-message" | sed -n -e 's/^.*\-\-message//p'|sed -e 's/^[ \t]*//')]:string:" \
+  "--expires[$(echo "$helpauth" | grep "\-\-expires" | sed -n -e 's/^.*\-\-expires//p'|sed -e 's/^[ \t]*//')]:string:" \
+  "--ttl[$(echo "$helpauth" | grep "\-\-ttl" | sed -n -e 's/^.*\-\-ttl//p'|sed -e 's/^[ \t]*//')]:string:" \
 }
 
 
