@@ -27,11 +27,12 @@ _tctl() {
                     "status[Report cluster status]" \
                     "top[Report diagnostic information]" \
                     "requests[Manage access requests]" \
+                    "request[Manage access requests]" \
                     "apps[Operate on applications registered with the cluster.]" \
                     "db[Operate on databases registered with the cluster.]" \
                     "access[Get access information within the cluster.]" \
                     "lock[Create a new lock.]" \
-                    "version[Print cluster version]" \
+                    "version[Print cluster version]"
             ;;
         args)
             case $line[1] in
@@ -59,8 +60,68 @@ _tctl() {
                 lock)
                    _lock_tctl_cmd
                     ;;
+                request)
+                   _requests_tctl_cmd
+                    ;;
+                create)
+                   _create_tctl_cmd
+                    ;;
+                requests)
+                   _requests_tctl_cmd
+                    ;;
                 help)
                    _tctl
+                    ;;
+            esac
+            ;;
+    esac
+}
+
+
+_create_tctl_cmd(){
+
+
+   forceMsg=$(echo "Overwrite the resource if already exists")
+    _arguments -s \
+   "-f[$(echo $forceMsg)]" \
+   "--force[$(echo $forceMsg)]" \
+   "1:filename:_files"
+}
+
+
+_requests_tctl_cmd(){
+
+
+    helpauth=$(tctl help requests 2>&1 | grep "requests")
+
+    _arguments -s \
+               "1: :->cmds" \
+               "*::arg:->args"
+
+    case "$state" in
+        cmds)
+            _values "requests" \
+                    "ls[$(echo "$helpauth" | grep "requests ls" | sed -n -e 's/^.*requests ls//p'|sed -e 's/^[ \t]*//')]" \
+                    "get[$(echo "$helpauth" | grep "requests get" | sed -n -e 's/^.*requests get//p'|sed -e 's/^[ \t]*//')]" \
+                    "approve[$(echo "$helpauth" | grep "requests approve" | sed -n -e 's/^.*requests approve//p'|sed -e 's/^[ \t]*//')]" \
+                    "deny[$(echo "$helpauth" | grep "requests deny" | sed -n -e 's/^.*requests deny//p'|sed -e 's/^[ \t]*//')]" \
+                    "create[$(echo "$helpauth" | grep "requests create" | sed -n -e 's/^.*requests create//p'|sed -e 's/^[ \t]*//')]" \
+                    "rm[$(echo "$helpauth" | grep "requests rm" | sed -n -e 's/^.*requests rm//p'|sed -e 's/^[ \t]*//')]" \
+                    "review[$(echo "$helpauth" | grep "requests review" | sed -n -e 's/^.*requests review//p'|sed -e 's/^[ \t]*//')]"
+            ;;
+        args)
+            case $line[1] in
+                approve)
+                    _approve_requests_tctl_cmd
+                    ;;
+                deny)
+                    _deny_requests_tctl_cmd
+                    ;;
+                create)
+                    _create_requests_tctl_cmd
+                    ;;
+                review)
+                    _review_requests_tctl_cmd
                     ;;
             esac
             ;;
@@ -109,7 +170,7 @@ _lock_tctl_cmd(){
   "--access-request[$(echo "$helpauth" | grep "\-\-access\-request" | sed -n -e 's/^.*\-\-access\-request//p'|sed -e 's/^[ \t]*//')]:string:" \
   "--message[$(echo "$helpauth" | grep "\-\-message" | sed -n -e 's/^.*\-\-message//p'|sed -e 's/^[ \t]*//')]:string:" \
   "--expires[$(echo "$helpauth" | grep "\-\-expires" | sed -n -e 's/^.*\-\-expires//p'|sed -e 's/^[ \t]*//')]:string:" \
-  "--ttl[$(echo "$helpauth" | grep "\-\-ttl" | sed -n -e 's/^.*\-\-ttl//p'|sed -e 's/^[ \t]*//')]:string:" \
+  "--ttl[$(echo "$helpauth" | grep "\-\-ttl" | sed -n -e 's/^.*\-\-ttl//p'|sed -e 's/^[ \t]*//')]:string:"
 }
 
 
@@ -246,7 +307,7 @@ _ls_access_tctl_cmd() {
     _arguments -s \
       "--user[Teleport user]:string:" \
       "--login[Teleport login]:string:" \
-      "--node[Teleport node]:string:" \
+      "--node[Teleport node]:string:" 
 }
 
 _nodes_tctl_cmd() {
