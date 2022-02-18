@@ -89,6 +89,11 @@ _create_tctl_cmd(){
 }
 
 
+_list_requestid_tctl_cmd()
+ {
+  _arguments "*: :( $(tctl requests ls | sed -n '3,$p' | awk '{print $1}') )"
+}
+
 _requests_tctl_cmd(){
 
 
@@ -123,9 +128,61 @@ _requests_tctl_cmd(){
                 review)
                     _review_requests_tctl_cmd
                     ;;
+                get)
+                    _list_requestid_tctl_cmd
+                    ;;
+                rm)
+                    _list_requestid_tctl_cmd
+                    ;;
             esac
             ;;
     esac
+}
+
+_review_requests_tctl_cmd(){
+    helpauth=$(tctl help requests review 2>&1 | grep "\-\-")
+
+    _arguments -s \
+  "--author[$(echo "$helpauth" | grep "  \-\-author" | sed -n -e 's/^.*\-\-author//p'|sed -e 's/^[ \t]*//')]:string:" \
+  "--approve[$(echo "$helpauth" | grep "\-\-approve" | sed -n -e 's/^.*\-\-approve//p'|sed -e 's/^[ \t]*//')]" \
+  "--deny[$(echo "$helpauth" | grep "\-\-deny" | sed -n -e 's/^.*\-\-deny//p'|sed -e 's/^[ \t]*//')]" \
+               "1: :_list_requestid_tctl_cmd"
+
+}
+
+_approve_requests_tctl_cmd(){
+    helpauth=$(tctl help requests approve 2>&1 | grep "\-\-")
+
+    _arguments -s \
+  "--delegator[$(echo "$helpauth" | grep "\-\-delegator" | sed -n -e 's/^.*\-\-delegator//p'|sed -e 's/^[ \t]*//')]:string:" \
+  "--reason[$(echo "$helpauth" | grep "\-\-reason" | sed -n -e 's/^.*\-\-reason//p'|sed -e 's/^[ \t]*//')]:string:" \
+  "--annotations[Resolution attributes key=value]:string:" \
+  "--roles[Overide request roles]:string:" \
+               "1: :_list_requestid_tctl_cmd" 
+
+}
+
+_deny_requests_tctl_cmd(){
+    helpauth=$(tctl help requests deny 2>&1 | grep "\-\-")
+
+    _arguments -s \
+  "--delegator[$(echo "$helpauth" | grep "\-\-delegator" | sed -n -e 's/^.*\-\-delegator//p'|sed -e 's/^[ \t]*//')]:string:" \
+  "--reason[$(echo "$helpauth" | grep "\-\-reason" | sed -n -e 's/^.*\-\-reason//p'|sed -e 's/^[ \t]*//')]:string:" \
+  "--annotations[Resolution attributes key=value]:string:" \
+  "--roles[Overide request roles]:string:" \
+               "1: :_list_requestid_tctl_cmd"
+
+}
+
+_create_requests_tctl_cmd(){
+    helpauth=$(tctl help requests create 2>&1 | grep "\-\-")
+
+    _arguments -s \
+  "--roles[$(echo "$helpauth" | grep "\-\-roles" | sed -n -e 's/^.*\-\-roles//p'|sed -e 's/^[ \t]*//')]:string:" \
+  "--reason[$(echo "$helpauth" | grep "\-\-reason" | sed -n -e 's/^.*\-\-reason//p'|sed -e 's/^[ \t]*//')]:string:" \
+  "--dry-run[$(echo "$helpauth" | grep "\-\-dry\-run" | sed -n -e 's/^.*\-\-dry\-run//p'|sed -e 's/^[ \t]*//')]" \
+               "1: :_list_users_tctl_cmd"
+
 }
 
 _db_tctl_cmd(){
