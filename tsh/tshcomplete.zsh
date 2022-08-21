@@ -179,7 +179,9 @@ _requests_tsh_cmd() {
                     "details[Show request details]" \
                     "new[Create a new access request]" \
                     "create[Create a new access request]" \
-                    "review[Review an access request]"
+                    "review[Review an access request]" \
+                    "drop[Drop one more access requests from current identity]" \
+                    "search[Search for resources to request access to]" \
             ;;
         args)
             case $line[1] in
@@ -192,10 +194,24 @@ _requests_tsh_cmd() {
                 review)
                     _review_requests_tsh_cmd
                     ;;
+                search)
+                   _search_requests_tsh_cmd
+                   ;;
             esac
             ;;
     esac
 }
+
+_search_requests_tsh_cmd() {
+    local line state
+
+    _arguments -s  \
+               "--kind[Resource kind to search for node, kube_cluster, db, app, windows_desktop]:string:" \
+      "--search[List of comma separated search keywords or phrases enclosed in quotations]:string:" \
+      "--query[Query by predicate language enclosed in single quotes. Supports ==, !=, &&, and ||]:string:" \
+      "--labels[List of comma separated labels to filter by labels (e.g. key1=value1,key2=value2)]:string:"
+}
+
 
 _new_requests_tsh_cmd() {
     local line state
@@ -261,7 +277,10 @@ _kube_tsh_cmd() {
         cmds)
             _values "kube" \
                     "ls[Get a list of kubernetes clusters]" \
-                    "login[Login to a kubernetes cluster]" 
+                    "login[Login to a kubernetes cluster]" \
+                    "join[Join an active Kubernetes session.]"  \
+                    "exec[Execute a command in a kubernetes pod]"  \
+                    "sessions[Get a list of active kubernetes sessions]"
             ;;
     esac
 }
