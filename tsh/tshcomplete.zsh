@@ -39,7 +39,7 @@ _tsh() {
                     "aws[Access AWS API]" \
                     "apps[Application functions ls login logout config]" \
                     "app[Application functions ls login logout config]" \
-                    "proxy[Local proxy for ssh or db]" \
+                    "proxy[Local proxy for ssh,db,app, aws]" \
                     "scp[Secure file copy]" \
                     "status[Display the list of proxy servers and retrieved certificates]" \
                     "env[Print commands to set Teleport session environment variables]" \
@@ -48,6 +48,8 @@ _tsh() {
                     "kube[Kubernetes functions]" \
                     "mfa[MFA functions]" \
                     "config[Print OpenSSH configuration details]" \
+                    "clusters[List available Teleport clusters]" \
+                    "recordings[View and control session recordings]" \
             ;;
         args)
             case $line[1] in
@@ -87,6 +89,9 @@ _tsh() {
                 scp)
                    _scp_tsh_cmd
                     ;;
+                recordings)
+                  _recordings_tsh_cmd
+                    ;;
 # will need to make one that doesn't fail on arguments
                 help)
                    _tsh
@@ -94,6 +99,22 @@ _tsh() {
             esac
             ;;
     esac
+}
+
+
+_recordings_tsh_cmd() {
+    local line state
+
+    _arguments -C \
+               "1: :->cmds"
+
+    case "$state" in
+        cmds)
+            _values "recordings" \
+                "ls[List recorded sessions]"
+            ;;
+    esac
+
 }
 
 _scp_tsh_cmd() {
@@ -222,7 +243,9 @@ _proxy_tsh_cmd() {
         cmds)
             _values "proxy" \
                 "ssh[Start local TLS proxy for ssh connections when using Teleport in single\-port mode]" \
-                "db[Start local TLS proxy for database connections when using Teleport in single\-port mode]"
+                "db[Start local TLS proxy for database connections when using Teleport in single\-port mode]" \
+                "app[Start local TLS proxy for app connection when using Teleport in single-port mode]" \
+                "aws[Start local proxy for AWS access]"
             ;;
     esac
 
@@ -322,9 +345,11 @@ _db_ls_tsh_cmd() {
 
 _db_login_tsh_cmd() {
     _arguments -s \
-               "--db-user[Optional database user to configure as default]:string:" \
-                    "--db-name[Optional database name to configure as default.]:string:" \
-     "*: :( $(tsh db ls | sed -n '3,$p' | awk '{print $1}') )"
+
+#              "--db-user[Optional database user to configure as default]:string:" \
+#                   "--db-name[Optional database name to configure as default.]:string:" \
+#    "1: :( $(tsh db ls | sed -n '3,$p' | awk '{print $1}') )"
+     "1: :( $(echo '1\n2\n3\n') )"
 }
 
 
@@ -332,35 +357,26 @@ _ls_tsh_cmd() {
 }
 
 _ssh_tsh_cmd() {
-  local line state
-    _arguments -s \
-               "1: :->cmds" \
-               "*::arg:->args"
-
-    case "$state" in
-        cmds)
-            _values "ssh" \
-             "--login[Remote host login]" \
-             "--proxy[SSH proxy address]" \
-             "--user[SSH proxy user]" \
-             "--ttl[Minutes to live for a SSH session]" \
-             "-i[Identity file]" \
-             "--identity[Identity file]" \
-             "--cert-format[SSH certificate format]" \
-             "--insecure[Do not verify server's certificate and host name. Use only in test environments]" \
-             "--auth[Specify the type of authentication connector to use.]" \
+    _arguments  \
+             "--login[Remote host login]:string:" \
+             "--proxy[SSH proxy address]:string:" \
+             "--user[SSH proxy user]:string:" \
+             "--ttl[Minutes to live for a SSH session]:string:" \
+             "-i[Identity file]:filename:_files" \
+             "--identity[Identity file]:filename:_files" \
+             "--cert-format[SSH certificate format]:string:" \
+             "--insecure[Do not verify server's certificate and host name. Use only in test environments]:string:" \
+             "--auth[Specify the type of authentication connector to use.]:string:" \
              "--skip-version-check[Skip version checking between server and client.]" \
              "--debug[Verbose logging to stdout]" \
-             "-d[Verbose logging to stdout]"
-            ;;
-        args)
-            case $line[2] in
-                -i)
-                    _identity_tsh_cmd
-                    ;;
-            esac
-            ;;
-    esac
+             "-d[Verbose logging to stdout]" \
+               "1: :_list_ssh_tsh_cmd"  
+
+}
+
+_list_ssh_tsh_cmd()
+ {
+  _arguments "1: :( $(tsh ls | sed -n '3,$p' | awk '{print $1}') )"
 }
 
 _identity_tsh_cmd() {
