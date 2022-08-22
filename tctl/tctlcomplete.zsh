@@ -30,15 +30,16 @@ _tctl() {
                     "request[Manage access requests]" \
                     "apps[Operate on applications registered with the cluster.]" \
                     "db[Operate on databases registered with the cluster.]" \
-                    "access[Get access information within the cluster.]" \
+                    "kube[Operate on registered kubernetes clusters.]" \
+                    "bots[Operate on certificate renewal bots registered with the cluster.]" \
+                    "inventory[Manage Teleport instance inventory]" \
                     "lock[Create a new lock.]" \
+                    "sso[A family of commands for configuring and testing auth connectors (SSO).]" \
+                    "saml[Export a SAML signing key in .crt format]" \
                     "version[Print cluster version]"
             ;;
         args)
             case $line[1] in
-                access)
-                    _access_tctl_cmd
-                    ;;
                 users)
                     _users_tctl_cmd
                     ;;
@@ -57,6 +58,9 @@ _tctl() {
                 db)
                    _db_tctl_cmd
                     ;;
+                kube)
+                   _kube_tctl_cmd
+                    ;;
                 lock)
                    _lock_tctl_cmd
                     ;;
@@ -69,6 +73,18 @@ _tctl() {
                 requests)
                    _requests_tctl_cmd
                     ;;
+                bots)
+                   _bots_tctl_cmd
+                    ;;
+                inventory)
+                   _inventory_tctl_cmd
+                    ;;
+                saml)
+                   _saml_tctl_cmd
+                    ;;
+                sso)
+                   _sso_tctl_cmd
+                    ;;
                 help)
                    _tctl
                     ;;
@@ -77,6 +93,250 @@ _tctl() {
     esac
 }
 
+_sso_tctl_cmd(){
+
+
+    helpauth=$(tctl help sso 2>&1 | grep "sso")
+
+    _arguments -s \
+               "1: :->cmds" \
+               "*::arg:->args"
+
+    case "$state" in
+        cmds)
+            _values "sso" \
+                    "configure[Create auth connector configuration.]" \
+                    "test[$(echo "$helpauth" | grep "sso test" | sed -n -e 's/^.*sso test//p'|sed -e 's/^[ \t]*//')]"
+            ;;
+        args)
+            case $line[1] in
+                configure)
+                    _configure_sso_tctl_cmd
+                    ;;
+                test)
+                    _test_sso_tctl_cmd
+                    ;;
+            esac
+            ;;
+    esac
+}
+
+_test_sso_tctl_cmd(){
+
+    _arguments -s \
+   "1:filename:_files"
+}
+
+_configure_sso_tctl_cmd(){
+
+
+    helpauth=$(tctl help sso configure 2>&1 | grep "sso configure ")
+
+    _arguments -s \
+               "1: :->cmds" \
+               "*::arg:->args"
+
+    case "$state" in
+        cmds)
+            _values "configure" \
+                    "github[$(echo "$helpauth" | grep "configure github" | sed -n -e 's/^.*configure github//p'|sed -e 's/^[ \t]*//')]" \
+                    "gh[$(echo "$helpauth" | grep "configure github" | sed -n -e 's/^.*configure github//p'|sed -e 's/^[ \t]*//')]" \
+                    "saml[$(echo "$helpauth" | grep "configure saml" | sed '1,/inventory status/s/inventory status//' |sed -e 's/^[ \t]*//'|sed 's/[[]/(/g' | sed 's/[]]/)/g')]" \
+                    "oidc[$(echo "$helpauth" | grep "configure oidc" | sed -n -e 's/^.*configure oidc//p'|sed -e 's/^[ \t]*//')]" \
+            ;;
+        args)
+            case $line[1] in
+                github)
+                    _github_configure_sso_tctl_cmd
+                    ;;
+                saml)
+                    _saml_configure_sso_tctl_cmd
+                    ;;
+                oidc)
+                    _oidc_configure_sso_tctl_cmd
+                    ;;
+            esac
+            ;;
+    esac
+}
+
+_github_configure_sso_tctl_cmd(){
+
+    _arguments -s \
+   "--name[Connector name.]:string:"  \
+   "-n[Connector name.]:string:"  \
+   "--teams-to-roles[Sets teams-to-roles mapping using format 'organization,name,role1,role2,...'. Repeatable.]:string:" \
+   "--display[Sets the connector display name.]:string:"  \
+   "--id[GitHub app client ID.]:string:"  \
+   "--secret[GitHub app client secret.]:string:"  \
+   "--redirect-url[Authorization callback URL.]:string:"  \
+   "--ignore-missing-roles[Ignore missing roles referenced in --teams-to-roles]" 
+}
+
+_oidc_configure_sso_tctl_cmd2(){
+
+    _arguments -s \
+   "-p[Preset. One of: (okta onelogin ad adfs)]:string:"  \
+   "--preset[Preset. One of: (okta onelogin ad adfs)]:string:" \
+   "-n[Connector name. Required, unless implied from preset.]:string:"  \
+   "--name[Connector name. Required, unless implied from preset.]:string:"
+}
+
+_oidc_configure_sso_tctl_cmd(){
+    
+    _arguments -s \
+   "-p[Preset. One of: (okta onelogin ad adfs)]:string:"  \
+   "--preset[Preset. One of: (okta onelogin ad adfs)]:string:" \
+   "-n[Connector name. Required, unless implied from preset.]:string:"  \
+   "--name[Connector name. Required, unless implied from preset.]:string:" \
+   "-r[Sets claim-to-roles mapping using format 'claim_name,claim_value,role1,role2,...'. Repeatable.]:string:" \
+   "--claims-to-roles[Sets claim-to-roles mapping using format 'claim_name,claim_value,role1,role2,...'. Repeatable.]:string:" \
+   "--display[Sets the connector display name.]:string:" \
+   "--id[OIDC app client ID.]:string:" \
+   "--secret[OIDC app client secret.]:string:" \
+   "--issuer-url[Issuer URL.]:string:" \
+   "--redirect-url[Authorization callback URL(s). Each repetition of the flag declares one redirectURL.]:string:" \
+   "--prompt[Optional OIDC prompt. Example values: none, select_account, login, consent.]:string:" \
+   "--scope[Scope specifies additional scopes set by provider. Each repetition of the flag declares one scope. Examples: email, groups, openid.]:string:" \
+   "--acr[Authentication Context Class Reference values.]:string:" \
+   "--provider[Sets the external identity provider type to enable IdP specific workarounds. Examples: ping, adfs, netiq, okta.]:string:" \
+   "--google-acc-uri[Google only. URI pointing at service account credentials. Example: file:///var/lib/teleport/gworkspace-creds.json.]:string:" \
+   "--google-acc[Google only. String containing Google service account credentials.]:string:" \
+   "--google-admin[Google only. String containing Google service account credentials.]:string:" \
+   "--google-legacy[Google only. Flag to select groups with direct membership filtered by domain (legacy behavior). Disabled by default.]" \
+   "--google-id[Google only. Flag to select groups with direct membership filtered by domain (legacy behavior). Disabled by default.]:string:" \
+   "--ignore-missing-roles[Ignore missing roles referenced in --claims-to-roles.]"
+
+}
+
+_saml_configure_sso_tctl_cmd(){
+
+    _arguments -s \
+   "-p[Preset. One of: (okta onelogin ad adfs)]:string:"  \
+   "--preset[Preset. One of: (okta onelogin ad adfs)]:string:" \
+   "-n[Connector name. Required, unless implied from preset.]:string:"  \
+   "--name[Connector name. Required, unless implied from preset.]:string:" \
+   "-e[Set the Entity Descriptor. Valid values: file, URL, XML content. Supplies configuration parameters as single XML instead of individual elements.]:string:"  \
+   "--entity-descriptor[Set the Entity Descriptor. Valid values: file, URL, XML content. Supplies configuration parameters as single XML instead of individual elements.]:string:"  \
+   "-r[Sets attribute-to-role mapping using format 'attr_name,attr_value,role1,role2,...'. Repeatable.]:string:"  \
+   "--attributes-to-roles[Sets attribute-to-role mapping using format 'attr_name,attr_value,role1,role2,...'. Repeatable.]:string:" \
+   "--display[Sets the connector display name.]:string:"  \
+   "--issuer[Issuer is the identity provider issuer.]:string:"  \
+   "--sso[SSO is the URL of the identity provider's SSO service.]:string:"  \
+   "--cert[Cert file with with the IdP certificate PEM. IdP signs <Response> responses using this certificate.]:filename:_files"  \
+   "--acs[AssertionConsumerService is a URL for assertion consumer service on the service provider (Teleport's side).]:string:"  \
+   "--audience[Audience uniquely identifies our service provider.]:string:"  \
+   "--service-provider-issuer[ServiceProviderIssuer is the issuer of the service provider (Teleport).]:string:"  \
+   "--signing-key-file[A file with request signing key. Must be used together with --signing-cert-file.]:filename:_files"  \
+   "--signing-cert-file[A file with request certificate. Must be used together with --signing-key-file.]:filename:_files"  \
+   "--assertion-key-file[A file with key used for securing SAML assertions. Must be used together with --assertion-cert-file.]:filename:_files"  \
+   "--assertion-cert-file[A file with cert used for securing SAML assertions. Must be used together with --assertion-key-file.]:filename:_files"  \
+   "--provider[Sets the external identity provider type. Examples: ping, adfs.]:string:"  \
+   "--ignore-missing-roles[Ignore missing roles referenced in --attributes-to-roles.]"
+}
+
+_saml_configure_sso_tctl_cmd2(){
+
+    _arguments -s \
+   "-p[Preset. One of: (okta onelogin ad adfs)]:string:"  \
+   "--preset[Preset. One of: (okta onelogin ad adfs)]:string:"  \
+   "-n[Connector name. Required, unless implied from preset.]:string:"  \
+   "--name[Connector name. Required, unless implied from preset.]:string:"  \
+   "-e[Set the Entity Descriptor. Valid values: file, URL, XML content. Supplies configuration parameters as single XML instead of individual elements.]:string:"  \
+   "--entity-descriptor[Set the Entity Descriptor. Valid values: file, URL, XML content. Supplies configuration parameters as single XML instead of individual elements.]:string:"  \
+   "-r[Sets attribute-to-role mapping using format 'attr_name,attr_value,role1,role2,...'. Repeatable.]:string:"  \
+   "--attributes-to-roles[Sets attribute-to-role mapping using format 'attr_name,attr_value,role1,role2,...'. Repeatable.]:string:"  \
+   "--display[Sets the connector display name.]:string:"  \
+   "--issuer[test1]:string:"  \
+   "--sso[test2]:string:"  \
+   "--cert[test3]:string:"  \
+   "--acs[test4]:string:"  \
+   "--audience[test5]:string:"  \
+   "--service-provider-issuer[test6]:string:"  \
+   "--signing-key-file[test7]:string:"  \
+   "--signing-cert-file[test8]:string:"  \
+   "--assertion-key-file[test9]:string:"  \
+   "--assertion-cert-file[test10]:string:"  \
+   "--provider[test11]:string:"  \
+   "--ignore-missing-roles[test12]" 
+
+
+
+   "--name[Connector name.]:string:"  \
+   "-n[Connector name.]:string:"  \
+   "--teams-to-roles[Sets teams-to-roles mapping using format 'organization,name,role1,role2,...'. Repeatable.]:string:" \
+   "--display[Sets the connector display name.]:string:"  \
+   "--id[GitHub app client ID.]:string:"  \
+   "--secret[GitHub app client secret.]:string:"  \
+   "--redirect-url[Authorization callback URL.]:string:"  \
+   "--ignore-missing-roles[Ignore missing roles referenced in --teams-to-roles]"  \
+}
+
+_kube_tctl_cmd(){
+
+
+    helpauth=$(tctl help kube 2>&1 | grep "kube")
+
+    _arguments -s \
+               "1: :->cmds" \
+               "*::arg:->args"
+
+    case "$state" in
+        cmds)
+            _values "kube" \
+                    "ls[$(echo "$helpauth" | grep "kube ls" | sed -n -e 's/^.*kube ls//p'|sed -e 's/^[ \t]*//')]"
+            ;;
+    esac
+}
+
+_saml_tctl_cmd(){
+
+
+    helpauth=$(tctl help saml 2>&1 | grep "saml")
+
+    _arguments -s \
+               "1: :->cmds" \
+               "*::arg:->args"
+
+    case "$state" in
+        cmds)
+            _values "saml" \
+                    "export[$(echo "$helpauth" | grep "saml export" | sed -n -e 's/^.*saml export//p'|sed -e 's/^[ \t]*//')]"
+            ;;
+    esac
+}
+
+
+_inventory_tctl_cmd(){
+
+
+    helpauth=$(tctl help inventory 2>&1 | grep "inventory")
+
+    _arguments -s \
+               "1: :->cmds" \
+               "*::arg:->args"
+
+    case "$state" in
+        cmds)
+            _values "inventory" \
+                    "status[Show inventory status summary]" \
+                    "ping[$(echo "$helpauth" | grep "inventory ping" | sed -n -e 's/^.*inventory ping//p'|sed -e 's/^[ \t]*//')]"
+            ;;
+        args)
+            case $line[1] in
+                status)
+                    _status_inventory_tctl_cmd
+                    ;;
+            esac
+            ;;
+    esac
+}
+
+_status_inventory_tctl_cmd(){
+
+    _arguments -s \
+   "--connected[Show locally connected instances summary]"
+}
 
 _create_tctl_cmd(){
 
@@ -93,6 +353,59 @@ _list_requestid_tctl_cmd()
  {
   _arguments "*: :( $(tctl requests ls | sed -n '3,$p' | awk '{print $1}') )"
 }
+
+_bots_tctl_cmd(){
+
+
+    helpauth=$(tctl help bots 2>&1 | grep "bots")
+
+    _arguments -s \
+               "1: :->cmds" \
+               "*::arg:->args"
+
+    case "$state" in
+        cmds)
+            _values "bots" \
+                    "ls[$(echo "$helpauth" | grep "bots ls" | sed -n -e 's/^.*bots ls//p'|sed -e 's/^[ \t]*//')]" \
+                    "add[$(echo "$helpauth" | grep "bots add" | sed -n -e 's/^.*bots add//p'|sed -e 's/^[ \t]*//')]" \
+                    "rm[$(echo "$helpauth" | grep "bots rm" | sed -n -e 's/^.*bots rm//p'|sed -e 's/^[ \t]*//')]"
+            ;;
+        args)
+            case $line[1] in
+                add)
+                    _add_bots_tctl_cmd
+                    ;;
+                rm)
+                    _rm_bots_tctl_cmd
+                    ;;
+            esac
+            ;;
+    esac
+}
+
+_add_bots_tctl_cmd(){
+    helpauth=$(tctl help bots add 2>&1 | grep "\-\-")
+
+    _arguments -s \
+  "--roles[$(echo "$helpauth" | grep "  \-\-roles" | sed -n -e 's/^.*\-\-roles//p'|sed -e 's/^[ \t]*//')]:string:" \
+  "--ttl[$(echo "$helpauth" | grep "  \-\-ttl" | sed -n -e 's/^.*\-\-ttl//p'|sed -e 's/^[ \t]*//')]:string:" \
+  "--token[$(echo "$helpauth" | grep "  \-\-token" | sed -n -e 's/^.*\-\-token//p'|sed -e 's/^[ \t]*//')]:string:"
+
+}
+
+_rm_bots_tctl_cmd(){
+    helpauth=$(tctl help bots rm 2>&1 | grep "\-\-")
+
+    _arguments -s \
+               "1: :_list_bots_tctl_cmd"
+
+}
+
+_list_bots_tctl_cmd()
+ {
+  _arguments "*: :( $(tctl bots ls | sed -n '3,$p' | awk '{print $1}') )"
+}
+
 
 _requests_tctl_cmd(){
 
