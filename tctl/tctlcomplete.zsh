@@ -173,15 +173,6 @@ _github_configure_sso_tctl_cmd(){
    "--ignore-missing-roles[Ignore missing roles referenced in --teams-to-roles]" 
 }
 
-_oidc_configure_sso_tctl_cmd2(){
-
-    _arguments -s \
-   "-p[Preset. One of: (okta onelogin ad adfs)]:string:"  \
-   "--preset[Preset. One of: (okta onelogin ad adfs)]:string:" \
-   "-n[Connector name. Required, unless implied from preset.]:string:"  \
-   "--name[Connector name. Required, unless implied from preset.]:string:"
-}
-
 _oidc_configure_sso_tctl_cmd(){
     
     _arguments -s \
@@ -235,45 +226,7 @@ _saml_configure_sso_tctl_cmd(){
    "--ignore-missing-roles[Ignore missing roles referenced in --attributes-to-roles.]"
 }
 
-_saml_configure_sso_tctl_cmd2(){
-
-    _arguments -s \
-   "-p[Preset. One of: (okta onelogin ad adfs)]:string:"  \
-   "--preset[Preset. One of: (okta onelogin ad adfs)]:string:"  \
-   "-n[Connector name. Required, unless implied from preset.]:string:"  \
-   "--name[Connector name. Required, unless implied from preset.]:string:"  \
-   "-e[Set the Entity Descriptor. Valid values: file, URL, XML content. Supplies configuration parameters as single XML instead of individual elements.]:string:"  \
-   "--entity-descriptor[Set the Entity Descriptor. Valid values: file, URL, XML content. Supplies configuration parameters as single XML instead of individual elements.]:string:"  \
-   "-r[Sets attribute-to-role mapping using format 'attr_name,attr_value,role1,role2,...'. Repeatable.]:string:"  \
-   "--attributes-to-roles[Sets attribute-to-role mapping using format 'attr_name,attr_value,role1,role2,...'. Repeatable.]:string:"  \
-   "--display[Sets the connector display name.]:string:"  \
-   "--issuer[test1]:string:"  \
-   "--sso[test2]:string:"  \
-   "--cert[test3]:string:"  \
-   "--acs[test4]:string:"  \
-   "--audience[test5]:string:"  \
-   "--service-provider-issuer[test6]:string:"  \
-   "--signing-key-file[test7]:string:"  \
-   "--signing-cert-file[test8]:string:"  \
-   "--assertion-key-file[test9]:string:"  \
-   "--assertion-cert-file[test10]:string:"  \
-   "--provider[test11]:string:"  \
-   "--ignore-missing-roles[test12]" 
-
-
-
-   "--name[Connector name.]:string:"  \
-   "-n[Connector name.]:string:"  \
-   "--teams-to-roles[Sets teams-to-roles mapping using format 'organization,name,role1,role2,...'. Repeatable.]:string:" \
-   "--display[Sets the connector display name.]:string:"  \
-   "--id[GitHub app client ID.]:string:"  \
-   "--secret[GitHub app client secret.]:string:"  \
-   "--redirect-url[Authorization callback URL.]:string:"  \
-   "--ignore-missing-roles[Ignore missing roles referenced in --teams-to-roles]"  \
-}
-
 _kube_tctl_cmd(){
-
 
     helpauth=$(tctl help kube 2>&1 | grep "kube")
 
